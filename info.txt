@@ -1,0 +1,7 @@
+Convert the special characters (: / ? # [ ] @) in your password or username to percentange characters i.e
+
+@ = %40
+' = %27
+! = %21
+...
+e.g. p@ssw0rd'9'! becomes p%40ssw0rd%279%27%21
