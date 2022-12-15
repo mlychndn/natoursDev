@@ -60,20 +60,26 @@ exports.getTour = async (req, res) => {
 };
 
 exports.createTour = async (req, res) => {
+  try {
+    const tour = await Tour.create(req.body);
+
+    res.status(201).json({
+      status: 'success',
+      data: {
+        tour,
+      },
+    });
+  } catch (error) {
+    res.status(400).json({
+      status: 'error',
+      message: error.message,
+    });
+  }
   // 1st method:
   // const newTour = new Tour(req.body);
   // await newTour.save();
 
   // 2nd method:
-
-  const tour = await Tour.create(req.body);
-
-  res.status(201).json({
-    status: 'success',
-    data: {
-      tour,
-    },
-  });
 };
 
 exports.updateTour = async (req, res) => {
@@ -96,9 +102,10 @@ exports.updateTour = async (req, res) => {
   }
 };
 
-exports.deleteTour = (req, res) => {
+exports.deleteTour = async (req, res) => {
+  const tour = await Tour.findByIdAndDelete(req.params.id, req.body);
   res.status(204).json({
     status: 'success',
-    data: null,
+    data: tour,
   });
 };
