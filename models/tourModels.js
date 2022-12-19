@@ -28,7 +28,7 @@ const tourSchema = new mongoose.Schema({
     default: 0,
   },
   price: {
-    type: String,
+    type: Number,
     required: [true, 'A tour must have a price'],
   },
   priceDiscount: Number,
@@ -49,6 +49,7 @@ const tourSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now(),
+    select: false,
   },
   startDates: [Date],
 });
