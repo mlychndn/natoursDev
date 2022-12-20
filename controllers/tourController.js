@@ -187,6 +187,8 @@ exports.getBusiestMonth = async (req, res) => {
         $sort: { numTours: -1 },
       },
       { $addFields: { month: '$_id' } },
+      { $project: { _id: 0 } },
+      { $limit: 12 },
     ]);
     res.status(200).json({
       status: 'sucess',
