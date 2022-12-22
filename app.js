@@ -2,6 +2,7 @@ const express = require('express');
 const morgan = require('morgan');
 const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
+const ApiError = require('./utils/apiError');
 
 const app = express();
 
@@ -31,11 +32,23 @@ app.use((req, res, next) => {
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 
+// to hanle all routes which are not defined
 app.all('*', (req, res, next) => {
-  res.status(404).json({
-    status: 'err',
-    message: 'This route is not defined',
-  });
+  const message = `${req.originalUrl} is not defined  ⛔⛔`;
+  const statusCode = 404;
+  const err = new ApiError(message, statusCode);
+  next(err);
 });
 
+// global error middleware
+
+app.use((err, req, res, next) => {
+  err.statusCode = err.statusCode || 500;
+  err.status = err.status || 'err';
+
+  res.status(err.statusCode).json({
+    status: err.status,
+    message: err.message,
+  });
+});
 module.exports = app;
