@@ -1,6 +1,6 @@
 const Tour = require('../models/tourModels');
 const APIFeatures = require('../utils/apiFeatures');
-const catchAsync = require('./errorController');
+const catchAsync = require('./catcAsync');
 const errorFunction = require('../utils/errFunction');
 
 exports.getCheapBestTour = (req, res, next) => {
