@@ -17,10 +17,10 @@ app.use(express.json());
 // middleware for rendering static pages
 app.use(express.static(`${__dirname}/public`));
 
-app.use((req, res, next) => {
-  console.log('Hello from middleware!👋');
-  next();
-});
+// app.use((req, res, next) => {
+//   console.log('Hello from middleware!👋');
+//   next();
+// });
 
 app.use((req, res, next) => {
   req.requestedTime = new Date().toISOString();
