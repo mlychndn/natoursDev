@@ -7,6 +7,7 @@ const router = express.Router();
 console.log(authController);
 
 router.route('/signUp').post(authController.signUp);
+router.route('/logIn').post(authController.logIn);
 
 router
   .route('/')

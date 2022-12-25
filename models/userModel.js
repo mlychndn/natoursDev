@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
+const bcrypt = require('bcryptjs');
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -21,9 +22,10 @@ const userSchema = new mongoose.Schema({
     required: [true, 'Please provide a password'],
     minLenght: [
       8,
-      'password lenght should be greater or equal than 8 characters',
+      'password length should be greater or equal than 8 characters',
     ],
     maxLength: [20, 'Password lenght should not be greater than 20 chars'],
+    select: false,
   },
   passwordConfirm: {
     type: String,
@@ -37,6 +39,31 @@ const userSchema = new mongoose.Schema({
   },
 });
 
+userSchema.pre('save', async function (next) {
+  this.password = await bcrypt.hash(this.password, 12);
+  this.passwordConfirm = undefined;
+  next();
+});
+
+userSchema.post('save', (doc, next) => {
+  console.log('password is hashed using bcrypt');
+  next();
+});
+
+// instance method on monggose schema
+// this method will be available on every document used by this schema
+
+/* userSchema.methods.printMyName = function () {
+  console.log(`My name is ${this.name}`);
+};
+*/
+
+userSchema.methods.passwordValidation = async function (
+  userInputPass,
+  userSavedPass
+) {
+  return await bcrypt.compare(userInputPass, userSavedPass);
+};
 const User = mongoose.model('User', userSchema);
 
 module.exports = User;
