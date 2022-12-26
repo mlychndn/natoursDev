@@ -44,7 +44,7 @@ const productionError = (err, res) => {
   if (err.name === 'CastError') err = castErrorHandle(err);
   if (err.code === 11000) err = duplicateKeyError(err);
   if (err.name === 'ValidationError') err = validationErrorHandle(err);
-
+  // if (err.name === '')
   res.status(err.statusCode).json({
     status: err.status,
     message: err.message,
