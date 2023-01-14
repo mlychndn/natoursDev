@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -17,6 +18,11 @@ const userSchema = new mongoose.Schema({
     validate: [validator.isEmail, 'Email should be valid'],
   },
   photo: String,
+  role: {
+    type: String,
+    enum: ['user', 'guide', 'lead-guide', 'admin', 'admin-guide'],
+    default: 'user',
+  },
   password: {
     type: String,
     required: [true, 'Please provide a password'],
@@ -38,11 +44,25 @@ const userSchema = new mongoose.Schema({
     },
   },
   passwordChangedAt: Date,
+  passwordResetToken: String,
+  passwordResetExpires: Date,
 });
 
 userSchema.pre('save', async function (next) {
-  this.password = await bcrypt.hash(this.password, 12);
-  this.passwordConfirm = undefined;
+  //console.log(this);
+  if (!this.isModified('password')) return next();
+  if (this.password) {
+    this.password = await bcrypt.hash(this.password, 12);
+    this.passwordConfirm = undefined;
+  }
+
+  next();
+});
+
+userSchema.pre('save', function (next) {
+  if (!this.isModified('password') || this.isNew) return next();
+
+  this.passwordChangedAt = Date.now() - 1000;
   next();
 });
 
@@ -73,12 +93,23 @@ userSchema.methods.tokenChangeCheck = function (JWTTimestamp) {
       10
     );
 
-    console.log(changedTimestamp, JWTTimestamp);
+    // console.log(changedTimestamp, JWTTimestamp);
     return JWTTimestamp < changedTimestamp;
   }
 
   // False means NOT changed
   return false;
+};
+
+userSchema.methods.createResetToken = async function () {
+  const resetToken = await crypto.randomBytes(32).toString('hex');
+  this.passwordResetToken = await crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex');
+
+  this.passwordResetExpires = Number(Date.now()) + Number(10 * 60 * 1000);
+  return resetToken;
 };
 const User = mongoose.model('User', userSchema);
 

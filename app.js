@@ -3,6 +3,12 @@ const morgan = require('morgan');
 const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
 const ApiError = require('./utils/apiError');
+// const set = require('lodash.set');
+
+// const object = { a: [{ b: { c: 3 } }] };
+// //console.log(object.a[0].b.c);
+// set(object, 'a[0]', { malay: 2340490 });
+// console.log(object.a[0]);
 
 const errController = require('./controllers/errorController');
 

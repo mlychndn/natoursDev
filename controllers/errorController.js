@@ -52,8 +52,6 @@ const productionError = (err, res) => {
 };
 
 module.exports = (err, req, res, next) => {
-  console.log(process.env.NODE_ENV);
-
   if (process.env.NODE_ENV === 'development') {
     developmentError(err, res);
   } else if (process.env.NODE_ENV === 'production') {
