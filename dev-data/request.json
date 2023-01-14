@@ -1,0 +1,69 @@
+{"requestOptions":{"searchApplicationId":"searchapplications/f6b5632ba23d2868a4886a0ddd9d6d13"},"dataSourceRestrictions":[
+
+    {"source":
+
+        {"name":"datasources/f6b5632ba23d28681e43442448a4f663"},
+
+        "filterOptions":[
+
+            {"filter": {
+
+                "compositeFilter": {
+
+                        "logicOperator": "AND",
+
+                        "subFilters": [
+
+                            {"valueFilter":
+
+                                    {"operatorName":"collection","value":{"stringValue":"bag_stage_bayer_com"}}
+
+                            }
+
+                            
+
+                        ]
+
+                    }
+
+                }
+
+            },
+
+            {"filter": {
+
+                "compositeFilter": {
+
+                        "logicOperator": "OR",
+
+                        "subFilters": [
+
+                            {"valueFilter":
+
+                                    {"operatorName":"domain","value":{"stringValue":"US"}}
+
+                            },
+
+                            {"valueFilter":
+
+                                    {"operatorName":"domain","value":{"stringValue":"CA"}}
+
+                            }
+
+                            
+
+                        ]
+
+                    }
+
+                }
+
+            }
+
+            
+
+        ]
+
+    }
+
+],"query":"aspirin","language":"en","pageSize":"10","country":"CA","sort":"mostrelevent"}
