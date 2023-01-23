@@ -1,4 +1,5 @@
 const User = require('../models/userModel');
+const ApiError = require('../utils/apiError');
 const catchAsync = require('./catcAsync');
 
 exports.getAllUsers = catchAsync(async (req, res, next) => {
@@ -17,6 +18,23 @@ exports.createUser = catchAsync(async (req, res, next) => {
   res.status(500).json({
     status: 'succcess',
     data: user,
+  });
+});
+
+exports.updateMe = catchAsync(async (req, res, next) => {
+  // create an error, if user post password data
+  if (req.body.password || req.body.passwordConfirm) {
+    return next(new ApiError('this route is not for updating password'));
+  }
+
+  const { _id: id } = req.freshUser;
+  const user = await User.findById(id);
+  user.name = req.body.name || user.name;
+  await user.save({ validateBeforeSave: false });
+
+  res.status(201).json({
+    status: 'success',
+    message: 'user details updated',
   });
 });
 

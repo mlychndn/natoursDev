@@ -13,6 +13,9 @@ router.route('/resetPassword/:token').patch(authController.resetPassword);
 router
   .route('/updatePassword')
   .patch(authController.userValidation, authController.updatePassword);
+router
+  .route('/updateDetails')
+  .patch(authController.userValidation, userController.updateMe);
 
 router
   .route('/')

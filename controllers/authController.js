@@ -7,6 +7,32 @@ const ApiError = require('../utils/apiError');
 const catchAsync = require('./catcAsync');
 const sendEmail = require('../utils/email');
 
+const getToken = async (user, res, from) => {
+  const token = await jwt.sign({ id: user._id }, process.env.JSON_SECRET_KEY, {
+    expiresIn: process.env.EXPIRESIN,
+  });
+
+  const data = {};
+  let message;
+
+  from === 'signUp' ? (data[user] = user) : (data[user] = undefined);
+
+  if (from === 'logIn') {
+    message = 'successfully logged in';
+  } else if (from === 'resetPassword') {
+    message = 'password reset done';
+  } else if (from === 'updatePassword') {
+    message = 'password updated!';
+  }
+
+  res.status(201).json({
+    status: 'success',
+    token,
+    data,
+    message,
+  });
+};
+
 exports.signUp = catchAsync(async (req, res, next) => {
   const { name, email, password, passwordConfirm, passwordChangedAt, role } =
     req.body;
@@ -23,21 +49,22 @@ exports.signUp = catchAsync(async (req, res, next) => {
 
   // console.log(process.env.EXPIRESIN, process.env.JSON_SECRET_KEY);
 
-  const token = await jwt.sign(
-    { id: newUser._id },
-    process.env.JSON_SECRET_KEY,
-    {
-      expiresIn: process.env.EXPIRESIN,
-    }
-  );
+  await getToken(newUser, res, 'signUp');
+  // const token = await jwt.sign(
+  //   { id: newUser._id },
+  //   process.env.JSON_SECRET_KEY,
+  //   {
+  //     expiresIn: process.env.EXPIRESIN,
+  //   }
+  // );
 
-  res.status(201).json({
-    status: 'success',
-    token,
-    data: {
-      user: newUser,
-    },
-  });
+  // res.status(201).json({
+  //   status: 'success',
+  //   token,
+  //   data: {
+  //     user: newUser,
+  //   },
+  // });
 });
 
 exports.logIn = catchAsync(async (req, res, next) => {
@@ -60,18 +87,7 @@ exports.logIn = catchAsync(async (req, res, next) => {
     return next(new ApiError('Incorrect email or password', 401));
   }
 
-  const token = await jwt.sign(
-    { id: userRecord._id },
-    process.env.JSON_SECRET_KEY,
-    {
-      expiresIn: process.env.EXPIRESIN,
-    }
-  );
-  res.status(200).json({
-    status: 'succes',
-    message: 'user logged in',
-    token,
-  });
+  await getToken(userRecord, res);
 });
 
 exports.userValidation = catchAsync(async (req, res, next) => {
@@ -201,33 +217,37 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
 
   await user.save();
 
-  const token = await jwt.sign({ id: user._id }, process.env.JSON_SECRET_KEY, {
-    expiresIn: process.env.EXPIRESIN,
-  });
-
-  console.log(user.password);
-  res.status(200).json({
-    status: 'success',
-    token,
-    message: 'password reset done',
-  });
+  await getToken(user, res, 'resetPassword');
 });
 
 exports.updatePassword = catchAsync(async (req, res, next) => {
-  const user = { ...req.freshUser };
+  // 1) Get user from the collection
 
-  if (!user) {
-    return ApiError('User not found!');
+  const { email } = req.freshUser;
+  const { currentPassword, password, passwordConfirm } = req.body;
+  const user = await User.findOne({ email: email }).select('+password');
+
+  //2) check if posted current possword is correct
+
+  const result = await user.passwordValidation(currentPassword, user.password);
+
+  if (!result) {
+    return next(new ApiError('current password entered by you is incorrect'));
   }
-  const { password, passwordConfirm } = req.body;
-
+  // 3) update the password
   user.password = password;
   user.passwordConfirm = passwordConfirm;
 
   await user.save();
+  // 4) log user in, send jwt
+  await getToken(user, res, 'updatePassword');
 
-  res.status(201).json({
-    status: 'success',
-    message: 'password updated',
-  });
+  // const token = await jwt.sign({ id: user._id }, process.env.JSON_SECRET_KEY, {
+  //   expiresIn: process.env.EXPIRESIN,
+  // });
+
+  // res.status(200).json({
+  //   status: 'success',
+  //   token,
+  // });
 });

@@ -1,5 +1,7 @@
 const express = require('express');
 const morgan = require('morgan');
+const cors = require('cors');
+
 const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
 const ApiError = require('./utils/apiError');
@@ -14,6 +16,13 @@ const errController = require('./controllers/errorController');
 
 const app = express();
 
+//const cors = require('cors');
+const corsOptions = {
+  origin: 'http://localhost:59319',
+  credentials: true, //access-control-allow-credentials:true
+  optionSuccessStatus: 200,
+};
+app.use(cors(corsOptions));
 //middleware functions
 
 if (process.env.NODE_ENV === 'development') {
@@ -24,6 +33,7 @@ if (process.env.NODE_ENV === 'development') {
 app.use(express.json());
 // middleware for rendering static pages
 app.use(express.static(`${__dirname}/public`));
+//app.use(cors());
 
 // app.use((req, res, next) => {
 //   console.log('Hello from middleware!👋');
