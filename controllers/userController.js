@@ -4,6 +4,7 @@ const catchAsync = require('./catcAsync');
 
 exports.getAllUsers = catchAsync(async (req, res, next) => {
   const user = await User.find();
+
   res.status(200).json({
     status: 'success',
     result: user.length,
@@ -30,20 +31,50 @@ exports.updateMe = catchAsync(async (req, res, next) => {
   const { _id: id } = req.freshUser;
   const user = await User.findById(id);
   user.name = req.body.name || user.name;
-  await user.save({ validateBeforeSave: false });
+  user.email = req.body.email || user.email;
+
+  const doc = await User.findByIdAndUpdate({ _id: id }, user, { new: true });
 
   res.status(201).json({
     status: 'success',
     message: 'user details updated',
+    details: doc,
   });
 });
 
-exports.getUser = (req, res, next) => {
-  res.status(500).json({
-    status: 'succcess',
-    message: 'route under maintainance',
+exports.deleteDetails = catchAsync(async (req, res, next) => {
+  //console.log(req.freshUser);
+  const user = await User.find(req.freshUser._id);
+  user.isActive = false;
+
+  const doc = await User.findByIdAndUpdate(
+    { _id: req.freshUser._id },
+    { isActive: false },
+    {
+      new: true,
+    }
+  );
+
+  console.log(doc);
+
+  res.status(204).json({
+    status: 'success',
+    message: 'user successfully deleted',
+    details: doc,
   });
-};
+});
+
+exports.getUser = catchAsync(async (req, res, next) => {
+  const user = await User.find({ _id: req.params.id });
+
+  res.status(200).json({
+    status: 'succcess',
+    count: user.length,
+    results: {
+      user,
+    },
+  });
+});
 
 exports.updateUser = (req, res, next) => {
   res.status(500).json({

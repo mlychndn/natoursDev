@@ -25,6 +25,20 @@ const getToken = async (user, res, from) => {
     message = 'password updated!';
   }
 
+  user.password = undefined;
+
+  console.log(process.env.NODE_ENV);
+
+  const requestOptions = {
+    expires: new Date(
+      Date.now() + process.env.COOKIE_EXPIRES * 24 * 60 * 60 * 1000
+    ),
+    httpOnly: true,
+  };
+
+  process.env.NODE_ENV === 'production' ? (requestOptions.secure = true) : '';
+  res.cookie('token', token, requestOptions);
+
   res.status(201).json({
     status: 'success',
     token,

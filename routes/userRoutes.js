@@ -18,6 +18,9 @@ router
   .patch(authController.userValidation, userController.updateMe);
 
 router
+  .route('/deleteUser')
+  .delete(authController.userValidation, userController.deleteDetails);
+router
   .route('/')
   .get(userController.getAllUsers)
   .post(userController.createUser);
