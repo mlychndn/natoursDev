@@ -78,7 +78,15 @@ app.use((req, res, next) => {
 
 app.use(
   hpp({
-    whitelist: [],
+    whitelist: [
+      'duration',
+      'price',
+      'maxGroupSize',
+      'difficulty',
+      'ratingsAverage',
+      'ratingsQuantity',
+      'name',
+    ],
   })
 );
 
